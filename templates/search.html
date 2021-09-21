@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+  <title>Semantic Search</title>
+  <style>
+    body {
+      max-width: 75%;
+      margin: 0 auto;
+      /* font-family: Verdana, Geneva, Tahoma, sans-serif */
+    }
+    h2 {
+      margin-bottom: 20xp;
+    }
+    p {
+      margin: 5px 0;
+    }
+    button {
+      margin-right: 5px;
+    }
+    .search-input {
+      margin-bottom: 30px;
+    }
+    .search {
+      margin-top: 20px;
+    }
+    .input-text {
+      width: 50%;
+      margin-right: 10px;
+    }
+    .flex {
+      display: flex;
+    }
+    .card {
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      border: 2px solid #e3e3e3;
+      margin-bottom: 10px;
+    }
+    .min-height {
+      min-height: 450px;
+    }
+    .bold {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div id="search"></div>
+  <script type="text/babel">
+    function Search() {
+      const [isLoading, setIsLoading] = React.useState(false)
+      const [input, setInput] = React.useState('')
+      const [records, setRecords] = React.useState([])
+      const [page, setPage] = React.useState(0)
+      const [pages, setPages] = React.useState([])
+      const [pagination, setPagination] = React.useState([1, 2, 3])
+
+      const getSearchResults = async (pageSelect = 0) => {
+        setIsLoading(true)
+        if (typeof(pageSelect) === "number") {
+          console.log("Setting page from button: ", pageSelect)
+          setPage(pageSelect)
+        }
+        const res = await fetch(`/get_search?page=${pageSelect}&query=${input}`, {
+          method: 'POST'
+        })
+        const searchData = await res.json()
+        const totalRecords = searchData.data['total_records']
+        setPages([...Array(Math.floor(totalRecords/2)).keys()].map(i => i + 1))
+        setRecords(searchData)
+        setIsLoading(false)
+      }
+
+      return (
+        <div className='search'>
+          <div className='search-input'>
+            <h2>Search for Pulse content</h2>
+            <div className='flex'>
+              <input className="input-text form-control" type="text" name="search" id='search' 
+                value={input} onChange={(e) => setInput(e.target.value)}
+              />
+              <button type='button' className="btn btn-primary" onClick={() => getSearchResults()}>Search</button>
+            </div>
+          </div>
+          {records.length === 0 ? (
+            isLoading ? (
+              <div className="d-flex min-height">
+                <strong>Loading...</strong>
+                <div className="spinner-border ms-auto" role="status" aria-hidden="true"></div>
+              </div>
+            ) : (
+              <p>Results will be shown here</p>
+            )
+          ) : (
+            isLoading ? (
+              <div className="d-flex min-height">
+                <strong>Loading...</strong>
+                <div className="spinner-border ms-auto" role="status" aria-hidden="true"></div>
+              </div>
+            ) : (
+              <div>
+                <p>Total Records: {records.data['total_records']}</p>
+                {records.data.data.map(record => (
+                  <div className='card'>
+                    <p><span className='bold'>Score:</span> {record.score}</p>
+                    <p><span className='bold'>Title:</span> {record.title}</p>
+                    <p><span className='bold'>Link:</span> {record.link}</p>
+                    <p><span className='bold'>Description:</span> {record.body.substring(0, 350).concat("...")}</p>
+                  </div>
+                ))}
+              </div>
+            )
+          )}
+          {records.length === 0 ? (
+            <div></div>
+          ) : (
+            <div>
+              <ul className="pagination">
+                <li className={`page-item${page === 0 ? ' disabled' : ''}`}>
+                  <a className="page-link" onClick={() => getSearchResults(page - 2)} aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                  </a>
+                </li>
+                {pages.map((_page, index) => {
+                  // <button key={page} id={index} onClick={() => getSearchResults(index * 2)}>{page}</button>
+                  let className = 'page-item'
+                  if (index === page/2) {
+                    className += ' active'
+                  } else {
+                    className = className
+                  }
+                  return (
+                    <li key={_page} id={index} className={className}><a className="page-link" onClick={() => getSearchResults(index * 2)}>{_page}</a></li>
+                )})}
+                <li className={`page-item${page === pages[pages.length - 2] * 2 ? ' disabled' : ''}`}>
+                  <a className="page-link" onClick={() => getSearchResults(page + 2)} aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          )}
+        </div>
+      )
+    }
+    ReactDOM.render(<Search />, document.getElementById('search'))
+  </script>
+</body>
+</html>

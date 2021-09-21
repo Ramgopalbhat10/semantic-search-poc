@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Semantic Search</title>
+  <style>
+    body {
+      max-width: 75%;
+      margin: 0 auto;
+    }
+    p {
+      margin: 5px 0;
+      font-family: Verdana, Geneva, Tahoma, sans-serif
+    }
+    .flex {
+      display: flex;
+    }
+    .card {
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      border: 2px solid gray;
+      margin-bottom: 10px;
+    }
+    .bold {
+      font-weight: bold;
+    }
+  </style>
+  <script>
+    function getSearch(d) {
+      const page = d.getAttribute('id')
+      const query = d.getAttribute('data-query')
+      console.log(d.getAttribute('id'), d.getAttribute('data-query'))
+      
+      fetch(`/get_search?page=${page}&query=${query}`, 
+        { 
+          method: 'POST',
+          cache: 'no-cache'
+        },
+      )
+    }
+  </script>
+</head>
+<body>
+  <h2>Search for Pulse content</h2>
+  <form method="POST" action="/get_search">
+    {% if records %}
+      <input class="search" type="text" name="search" id='search' value={{ records['query'] }}>
+    {% else %}
+      <input class="search" type="text" name="search" id='search'>
+    {% endif %}
+    <input type="submit" value="Submit">
+  </form>
+  <hr />
+  {% if records %}
+    <p>Total Results: {{ records['total_records'] }}</p>
+    {% for record in records['data'] %}
+      <div class="card">
+        <p><span class="bold">Score:</span> {{ record['score'] }}</p>
+        <p><span class="bold">Title:</span> {{ record['title'] }}</p>
+        <p><span class="bold">Link:</span> {{ record['link'] }}</p>
+        <p><span class="bold">Description:</span> {{ record['body'] }}</p>
+      </div>
+    {% endfor %}
+    <div class="flex">
+      {% for page in range(records['total_records'] // 2) %}
+        <button id="{{ page + 1 }}" data-query="{{records['query']}}" style="margin-right: 5px;" onclick="getSearch(this)">{{ page + 1 }}</button>
+      {% endfor %}
+    </div>
+  {% endif %}
+</body>
+</html>
