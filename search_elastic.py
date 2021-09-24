@@ -1,8 +1,6 @@
 from elasticsearch import Elasticsearch
 import json
 
-from numpy.core.fromnumeric import size
-
 es = None
 
 
@@ -81,8 +79,8 @@ def semantic_search(query_vector, page=0, threshold=1, top_n=10):
 
     print("getting records from: ", page)
     # Semantic vector search with cosine similarity
-    result = es.search(index='pulse', body=s_body, size=2,
-                       from_=page, track_total_hits=True)
+    result = es.search(index='pulse', body=s_body, from_=page, size=10,
+                       track_total_hits=True)
     total = result['hits']['total']['value']
     total_match = len(result["hits"]["hits"])
     print("Total Matches: ", str(total_match))

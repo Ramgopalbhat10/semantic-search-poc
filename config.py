@@ -2,4 +2,6 @@ ELASTIC_CLUSTER = 'semantic-search:dXMtY2VudHJhbDEuZ2NwLmNsb3VkLmVzLmlvJDUxZDAzZ
 ELASTIC_USER = 'elastic'
 ELASTIC_PASSWORD = '6P32yTc1YFFQTMaTfxHf63DH'
 
+ORACLE_DSN = ''
+
 TRANSFORMER_MODEL = 'multi-qa-distilbert-cos-v1'

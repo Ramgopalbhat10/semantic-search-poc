@@ -5,7 +5,8 @@ import numpy as np
 from search_elastic import connect_elastic, semantic_search
 import config
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='',
+            static_folder='search-client/build', template_folder='search-client/build')
 
 
 @app.before_request
@@ -26,6 +27,11 @@ app.after_request(apply_caching)
 model = SentenceTransformer(config.TRANSFORMER_MODEL)
 connect_elastic(config.ELASTIC_CLUSTER,
                 config.ELASTIC_USER, config.ELASTIC_PASSWORD)
+
+
+@app.route('/')
+def load_client():
+    return render_template('index.html')
 
 
 @app.route('/get_search', methods=['GET', 'POST'])
@@ -50,6 +56,15 @@ def search_request():
 
         # return render_template('index.html', records=records)
     return render_template('search.html')
+
+
+@app.route('/get_vector', methods=['POST'])
+def get_vector():
+    req_data = request.get_json()
+    text = req_data['text']
+
+    query_vector = np.asarray(model.encode(text)).tolist()
+    return {'text': text, 'vector': query_vector}
 
 
 if __name__ == '__main__':

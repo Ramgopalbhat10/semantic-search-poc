@@ -2,7 +2,6 @@ from sentence_transformers import SentenceTransformer
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
-import json
 
 from search_elastic import connect_elastic, insert
 import config
@@ -34,23 +33,5 @@ if __name__ == '__main__':
     print('Model loaded successfully...')
 
     # connect to elastic node
-    es = connect_elastic(config.ELASTIC_CLUSTER,
-                         config.ELASTIC_USER, config.ELASTIC_PASSWORD)
-
-    all_data = result = es.search(index='pulse',
-                                  body={
-                                      'query': {
-                                        # 'match': {'title': 'Payroll'}
-                                        "match_all": {}
-                                      },
-                                      'from': 0,
-                                      'size': 100
-                                  },
-                                  scroll='1d')
-
-    data = []
-    for hit in all_data['hits']['hits']:
-        data.append({"score": hit["_score"], "title": hit["_source"]['title'], "link": hit["_source"]['link'], "body": hit["_source"]['body']})
-
-    df = pd.DataFrame(data=data)
-    print(df)
+    connect_elastic(config.ELASTIC_CLUSTER,
+                    config.ELASTIC_USER, config.ELASTIC_PASSWORD)

@@ -5,3 +5,4 @@ pandas~=1.0.5
 elasticsearch~=7.7.1
 sentence-transformers~=2.0.0
 gunicorn~=20.1.0
+cx-Oracle~=8.2.1

@@ -1,0 +1,22 @@
+.ant-card-body > p {
+  margin: 0 !important;
+}
+.flex {
+  display: flex;
+  justify-content: space-between;
+  flex-grow: 2;
+}
+.people-results {
+  display: flex;
+}
+.grow {
+  flex: 1;
+}
+.App {
+  max-width: 70%;
+  margin: 20px auto;
+}
+.pulse-results > .ant-card,
+.community-results > .ant-card {
+  margin-bottom: 10px;
+}
